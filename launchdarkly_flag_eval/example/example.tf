@@ -16,6 +16,16 @@ data "feature-flag-eval_boolean" "mybool" {
   default_value = false
   context = {
     key = "hosh@launchdarkly.com"
+    custom = {
+      "test"  = "foo"
+      "test2" = 123
+      "test3" = false
+      "test4" = ["red", "orange", "yellow"]
+      "test5" = {
+        "one" = 1
+        "yay" = true
+      }
+    }
   }
 }
 

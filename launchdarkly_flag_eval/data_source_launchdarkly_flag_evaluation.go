@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -160,14 +159,8 @@ func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.Rea
 	}
 	tflog.Info(ctx, fmt.Sprintf("%+v", dataSourceState))
 
-	customData := map[string]tftypes.Value{}
-	err := dataSourceState.UserContext.Custom.As(&customData)
-	if err != nil {
-		// TODO
-	}
-	for key, val := range customData {
-		// key is the object field
-		// value is a tftypes.Value with the data in it
+	for key, val := range dataSourceState.UserContext.Custom.Values {
+		tflog.Info(ctx, fmt.Sprintf("Got %s with value %s", key, val))
 	}
 
 	// set state
