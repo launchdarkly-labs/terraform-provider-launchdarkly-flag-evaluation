@@ -126,8 +126,10 @@ func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.
 		rawContext := d.Get(CONTEXT).([]interface{})
 		// TODO construct user object properly
 		rawContextMap := rawContext[0].(map[string]*schema.Schema)
-		userCtxBuilder := lduser.NewUserBuilder(rawContextMap[keyAttribute])
-		userCtxBuilder.Name(rawContextMap[nameAttribute])
+		_ = rawContextMap
+		//userCtxBuilder := lduser.NewUserBuilder(rawContextMap[keyAttribute])
+		userCtxBuilder := lduser.NewUserBuilder("hello-world")
+		//userCtxBuilder.Name(rawContextMap[nameAttribute])
 		userCtx := userCtxBuilder.Build()
 		// todo rest of userCtx
 
