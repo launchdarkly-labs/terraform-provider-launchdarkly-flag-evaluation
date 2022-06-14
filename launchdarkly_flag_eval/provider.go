@@ -1,4 +1,4 @@
-package launchdarkly_flag_evaluation
+package launchdarkly_flag_eval
 
 import (
 	"context"
