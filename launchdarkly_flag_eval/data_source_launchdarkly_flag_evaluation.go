@@ -2,22 +2,21 @@ package launchdarkly_flag_eval
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"gopkg.in/launchdarkly/go-sdk-common.v2/lduser"
-	ld "gopkg.in/launchdarkly/go-server-sdk.v5"
 )
 
 const (
-	FLAG_KEY       = "flag_key"
-	FLAG_TYPE      = "flag_type"
-	CONTEXT        = "context"
-	VARIATION_TYPE = "variation_type"
-	VALUE          = "value"
-	DEFAULT_VALUE  = "default_value"
+	flagKey      = "flag_key"
+	flagType     = "flag_type"
+	userContext  = "context"
+	variation    = "variation_type"
+	value        = "value"
+	defaultValue = "default_value"
 
 	// KeyAttribute is the standard attribute name corresponding to User.GetKey().
 	keyAttribute = "key"
@@ -42,172 +41,207 @@ const (
 	customAttributes   = "custom"
 )
 
-func dataSourceFlagEvaluation(typ schema.ValueType) *schema.Resource {
-	return &schema.Resource{
-		ReadContext: dataSourceFlagEvaluationReadWrapper(typ),
+type dataSourceFlagEvaluationBooleanType struct {
+	p provider
+}
 
-		// TODO: see what we actually need
-		Schema: map[string]*schema.Schema{
-			FLAG_KEY: {
-				Type:     schema.TypeString,
+func (r dataSourceFlagEvaluationBooleanType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+	return tfsdk.Schema{
+		Attributes: map[string]tfsdk.Attribute{
+			flagKey: {
+				Type:     types.StringType,
 				Required: true,
 			},
-			FLAG_TYPE: {
-				Type:     schema.TypeString,
+			flagType: {
+				Type:     types.StringType,
 				Computed: true,
 			},
-			DEFAULT_VALUE: {
-				Type:     typ,
+			defaultValue: {
+				Type:     types.BoolType, // TODO refactor to pass type via wrapper function
 				Required: true,
 			},
-			VALUE: {
-				Type:     typ,
+			value: {
+				Type:     types.BoolType, // TODO refactor to pass type via wrapper function
 				Computed: true,
 			},
-			// TODO: figure out the best name for this
-			CONTEXT: {
-				Type:     schema.TypeList,
-				MaxItems: 1,
+			userContext: {
 				Required: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						keyAttribute: {
-							Type:     schema.TypeString,
-							Required: true,
-							// todo 64 = CUSTOM_PROPERTY_CHAR_LIMIT
-							ValidateDiagFunc: validation.ToDiagFunc(validation.StringLenBetween(1, 64)),
-						},
-						secondaryKeyAttribute: {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						ipAttribute: {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						countryAttribute: {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						emailAttribute: {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						firstNameAttribute: {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						lastNameAttribute: {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						avatarAttribute: {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						nameAttribute: {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						anonymousAttribute: {
-							Type:     schema.TypeBool,
-							Optional: true,
-						},
-						// customAttributes:
-						// todo custom
-						// todo privateAttributes
+				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
+					keyAttribute: {
+						Type:     types.StringType,
+						Required: true,
 					},
-				},
+					secondaryKeyAttribute: {
+						Type:     types.StringType,
+						Optional: true,
+					},
+					ipAttribute: {
+						Type:     types.StringType,
+						Optional: true,
+					},
+					countryAttribute: {
+						Type:     types.StringType,
+						Optional: true,
+					},
+					emailAttribute: {
+						Type:     types.StringType,
+						Optional: true,
+					},
+					firstNameAttribute: {
+						Type:     types.StringType,
+						Optional: true,
+					},
+					lastNameAttribute: {
+						Type:     types.StringType,
+						Optional: true,
+					},
+					avatarAttribute: {
+						Type:     types.StringType,
+						Optional: true,
+					},
+					nameAttribute: {
+						Type:     types.StringType,
+						Optional: true,
+					},
+					anonymousAttribute: {
+						Type:     types.BoolType,
+						Optional: true,
+					},
+					// customAttributes: {
+					// 	Optional:   true,
+					// 	// TODO: should this also be a map (can we pass json in custom attributes?)
+					// 	Attributes: tfsdk.MapNestedAttributes(map[string]tfsdk.Attribute{}, tfsdk.MapNestedAttributesOptions{}),
+					// },
+					// TODO private attributes??
+				}),
 			},
 		},
-	}
+	}, nil
 }
 
-func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-		tflog.Info(ctx, "ENTERING FUNCTION")
-		var diags diag.Diagnostics
-		client := meta.(*ld.LDClient)
-
-		flagKey := d.Get(FLAG_KEY).(string)
-		rawContext := d.Get(CONTEXT).([]interface{})
-		// TODO construct user object properly
-		rawContextMap := rawContext[0].(map[string]interface{})
-		_ = rawContextMap
-		//userCtxBuilder := lduser.NewUserBuilder(rawContextMap[keyAttribute])
-		userCtxBuilder := lduser.NewUserBuilder("hello-world")
-		//userCtxBuilder.Name(rawContextMap[nameAttribute])
-		userCtx := userCtxBuilder.Build()
-		// todo rest of userCtx
-
-		switch typ {
-		case schema.TypeString:
-			d.Set(FLAG_TYPE, "string")
-			defaultValue := d.Get(DEFAULT_VALUE).(string)
-			value, err := client.StringVariation(flagKey, userCtx, defaultValue)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			err = d.Set(VALUE, value)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			d.Set(DEFAULT_VALUE, defaultValue)
-		case schema.TypeBool:
-			d.Set(FLAG_TYPE, "boolean")
-			defaultValue := d.Get(DEFAULT_VALUE).(bool)
-			value, err := client.BoolVariation(flagKey, userCtx, defaultValue)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			err = d.Set(VALUE, value)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			d.Set(DEFAULT_VALUE, defaultValue)
-		case schema.TypeInt:
-			d.Set(FLAG_TYPE, "int")
-			defaultValue := d.Get(DEFAULT_VALUE).(int)
-			value, err := client.IntVariation(flagKey, userCtx, defaultValue)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			err = d.Set(VALUE, value)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			d.Set(DEFAULT_VALUE, defaultValue)
-		case schema.TypeFloat:
-			d.Set(FLAG_TYPE, "float")
-			defaultValue := d.Get(DEFAULT_VALUE).(float64)
-			value, err := client.Float64Variation(flagKey, userCtx, defaultValue)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			err = d.Set(VALUE, value)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			d.Set(DEFAULT_VALUE, defaultValue)
-			// case schema.TypeMap:
-			// 	var jsonRaw json.RawMessage
-			// 	err := jsonRaw.UnmarshalJSON([]byte(rawDefault))
-			// 	if err != nil {
-			// 		return diag.FromErr(err)
-			// 	}
-
-			// 	defaultValue := ldvalue.Raw(jsonRaw)
-			// 	value, err := client.JSONVariation(flagKey, userCtx, defaultValue)
-			// 	if err != nil {
-			// 		return diag.FromErr(err)
-			// 	}
-		}
-
-		d.Set(FLAG_KEY, flagKey)
-		// TODO we need helper functions to convert back and forth
-		d.Set(CONTEXT, rawContextMap)
-		d.SetId(flagKey)
-
-		return diags
-	}
+func (d dataSourceFlagEvaluationBooleanType) NewDataSource(ctx context.Context, p tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
+	return dataSourceFlagEvaluationBoolean{
+		p: *(p.(*provider)),
+	}, nil
 }
+
+type dataSourceFlagEvaluationBoolean struct {
+	p provider
+}
+
+func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
+	var dataSourceState struct {
+		FlagKey      string                 `tfsdk:"flag_key"`
+		FlagType     string                 `tfsdk:"flag_type"`
+		DefaultValue bool                   `tfsdk:"default_value"`
+		Value        bool                   `tfsdk:"value"`
+		UserContext  map[string]interface{} `tfsdk:"context"`
+	}
+
+	tflog.Info(ctx, "test")
+
+	diags := req.Config.Get(ctx, &dataSourceState)
+	if diags.HasError() {
+		resp.Diagnostics.Append(diags...)
+		return
+	}
+	tflog.Info(ctx, fmt.Sprintf("%+v", dataSourceState))
+
+	// set state
+	diags = resp.State.Set(ctx, &dataSourceState)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// evaluation, err := r.p.client.BoolVariation(flagKey, userCtx, defaultValue)
+}
+
+// func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+// 	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+// 		tflog.Info(ctx, "ENTERING FUNCTION")
+// 		var diags diag.Diagnostics
+// 		client := meta.(*ld.LDClient)
+
+// 		flagKey := d.Get(FLAG_KEY).(string)
+// 		rawContext := d.Get(CONTEXT).([]interface{})
+// 		// TODO construct user object properly
+// 		rawContextMap := rawContext[0].(map[string]interface{})
+// 		_ = rawContextMap
+// 		//userCtxBuilder := lduser.NewUserBuilder(rawContextMap[keyAttribute])
+// 		userCtxBuilder := lduser.NewUserBuilder("hello-world")
+// 		//userCtxBuilder.Name(rawContextMap[nameAttribute])
+// 		userCtx := userCtxBuilder.Build()
+// 		// todo rest of userCtx
+
+// 		switch typ {
+// 		case types.StringType:
+// 			d.Set(FLAG_TYPE, "string")
+// 			defaultValue := d.Get(DEFAULT_VALUE).(string)
+// 			value, err := client.StringVariation(flagKey, userCtx, defaultValue)
+// 			if err != nil {
+// 				return diag.FromErr(err)
+// 			}
+// 			err = d.Set(VALUE, value)
+// 			if err != nil {
+// 				return diag.FromErr(err)
+// 			}
+// 			d.Set(DEFAULT_VALUE, defaultValue)
+// 		case schema.TypeBool:
+// 			d.Set(FLAG_TYPE, "boolean")
+// 			defaultValue := d.Get(DEFAULT_VALUE).(bool)
+// 			value, err := client.BoolVariation(flagKey, userCtx, defaultValue)
+// 			if err != nil {
+// 				return diag.FromErr(err)
+// 			}
+// 			err = d.Set(VALUE, value)
+// 			if err != nil {
+// 				return diag.FromErr(err)
+// 			}
+// 			d.Set(DEFAULT_VALUE, defaultValue)
+// 		case schema.TypeInt:
+// 			d.Set(FLAG_TYPE, "int")
+// 			defaultValue := d.Get(DEFAULT_VALUE).(int)
+// 			value, err := client.IntVariation(flagKey, userCtx, defaultValue)
+// 			if err != nil {
+// 				return diag.FromErr(err)
+// 			}
+// 			err = d.Set(VALUE, value)
+// 			if err != nil {
+// 				return diag.FromErr(err)
+// 			}
+// 			d.Set(DEFAULT_VALUE, defaultValue)
+// 		case schema.TypeFloat:
+// 			d.Set(FLAG_TYPE, "float")
+// 			defaultValue := d.Get(DEFAULT_VALUE).(float64)
+// 			value, err := client.Float64Variation(flagKey, userCtx, defaultValue)
+// 			if err != nil {
+// 				return diag.FromErr(err)
+// 			}
+// 			err = d.Set(VALUE, value)
+// 			if err != nil {
+// 				return diag.FromErr(err)
+// 			}
+// 			d.Set(DEFAULT_VALUE, defaultValue)
+// 			// case schema.TypeMap:
+// 			// 	var jsonRaw json.RawMessage
+// 			// 	err := jsonRaw.UnmarshalJSON([]byte(rawDefault))
+// 			// 	if err != nil {
+// 			// 		return diag.FromErr(err)
+// 			// 	}
+
+// 			// 	defaultValue := ldvalue.Raw(jsonRaw)
+// 			// 	value, err := client.JSONVariation(flagKey, userCtx, defaultValue)
+// 			// 	if err != nil {
+// 			// 		return diag.FromErr(err)
+// 			// 	}
+// 		}
+
+// 		d.Set(FLAG_KEY, flagKey)
+// 		// TODO we need helper functions to convert back and forth
+// 		d.Set(CONTEXT, rawContextMap)
+// 		d.SetId(flagKey)
+
+// 		return diags
+// 	}
+// }

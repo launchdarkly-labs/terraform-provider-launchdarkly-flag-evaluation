@@ -14,7 +14,7 @@ provider "feature-flag-eval" {
 data "feature-flag-eval_boolean" "mybool" {
   flag_key      = "boolean-flag"
   default_value = false
-  context {
+  context = {
     key = "hosh@launchdarkly.com"
   }
 }
