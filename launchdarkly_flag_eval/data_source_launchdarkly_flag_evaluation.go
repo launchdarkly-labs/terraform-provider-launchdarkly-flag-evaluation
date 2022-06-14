@@ -231,9 +231,8 @@ func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.
 			}
 			d.Set(DEFAULT_VALUE, defaultValue)
 			// case schema.TypeMap:
-			// 	d.Set(FLAG_TYPE, "map")
 			// 	var jsonRaw json.RawMessage
-			// 	err := jsonRaw.UnmarshalJSON([]byte(CONTEXT))
+			// 	err := jsonRaw.UnmarshalJSON([]byte(rawDefault))
 			// 	if err != nil {
 			// 		return diag.FromErr(err)
 			// 	}
@@ -243,7 +242,6 @@ func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.
 			// 	if err != nil {
 			// 		return diag.FromErr(err)
 			// 	}
-			// 	d.Set(DEFAULT_VALUE, value)
 		}
 
 		d.Set(FLAG_KEY, flagKey)
