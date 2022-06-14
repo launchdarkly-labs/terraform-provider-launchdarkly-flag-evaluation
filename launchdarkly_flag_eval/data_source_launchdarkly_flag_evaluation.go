@@ -126,13 +126,15 @@ func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.
 		rawContext := d.Get(CONTEXT).([]interface{})
 		// TODO construct user object properly
 		rawContextMap := rawContext[0].(map[string]*schema.Schema)
-		context := lduser.NewUserBuilder(rawContextMap[keyAttribute])
-		// todo rest of context
+		userCtxBuilder := lduser.NewUserBuilder(rawContextMap[keyAttribute])
+		userCtxBuilder.Name(rawContextMap[nameAttribute])
+		userCtx := userCtxBuilder.Build()
+		// todo rest of userCtx
 
 		switch typ {
 		case schema.TypeString:
 			defaultValue := d.Get(DEFAULT_VALUE).(string)
-			value, err := client.StringVariation(flagKey, context, defaultValue)
+			value, err := client.StringVariation(flagKey, userCtx, defaultValue)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -142,7 +144,7 @@ func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.
 			}
 		case schema.TypeBool:
 			defaultValue := d.Get(DEFAULT_VALUE).(bool)
-			value, err := client.BoolVariation(flagKey, context, defaultValue)
+			value, err := client.BoolVariation(flagKey, userCtx, defaultValue)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -152,7 +154,7 @@ func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.
 			}
 		case schema.TypeInt:
 			defaultValue := d.Get(DEFAULT_VALUE).(int)
-			value, err := client.IntVariation(flagKey, context, defaultValue)
+			value, err := client.IntVariation(flagKey, userCtx, defaultValue)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -162,7 +164,7 @@ func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.
 			}
 		case schema.TypeFloat:
 			defaultValue := d.Get(DEFAULT_VALUE).(float64)
-			value, err := client.Float64Variation(flagKey, context, defaultValue)
+			value, err := client.Float64Variation(flagKey, userCtx, defaultValue)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -178,7 +180,7 @@ func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.
 			// 	}
 
 			// 	defaultValue := ldvalue.Raw(jsonRaw)
-			// 	value, err := client.JSONVariation(flagKey, context, defaultValue)
+			// 	value, err := client.JSONVariation(flagKey, userCtx, defaultValue)
 			// 	if err != nil {
 			// 		return diag.FromErr(err)
 			// 	}

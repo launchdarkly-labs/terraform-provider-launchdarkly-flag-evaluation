@@ -15,7 +15,7 @@ if [[ ! -f $TF_CLI_CONFIG_FILE ]]; then
   cat <<EOF >"$TF_CLI_CONFIG_FILE"
 provider_installation {
   dev_overrides {
-    "launchdarkly/launchdarkly" = "${bin}"
+    "launchdarkly/feature_flag_evals" = "${bin}"
   }
   direct {}
 }
