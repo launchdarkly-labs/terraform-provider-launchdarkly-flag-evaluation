@@ -3,11 +3,12 @@ package launchdarkly_flag_eval
 import (
 	"context"
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"gopkg.in/launchdarkly/go-sdk-common.v2/lduser"
 )
 
 const (
@@ -107,12 +108,10 @@ func (r dataSourceFlagEvaluationBooleanType) GetSchema(_ context.Context) (tfsdk
 						Type:     types.BoolType,
 						Optional: true,
 					},
-					// customAttributes: {
-					// 	Optional:   true,
-					// 	// TODO: should this also be a map (can we pass json in custom attributes?)
-					// 	Attributes: tfsdk.MapNestedAttributes(map[string]tfsdk.Attribute{}, tfsdk.MapNestedAttributesOptions{}),
-					// },
-					// TODO private attributes??
+					customAttributes: {
+						Optional: true,
+						Type:     DynamicType{},
+					},
 				}),
 			},
 		},
@@ -141,7 +140,7 @@ func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.Rea
 		Avatar    types.String `tfsdk:"avatar"`
 		Name      types.String `tfsdk:"name"`
 		Anonymous types.Bool   `tfsdk:"anonymous"`
-		//Custom    ldvalue.ValueMap
+		Custom    Dynamic      `tfsdk:"custom"`
 	}
 
 	var dataSourceState struct {
@@ -149,7 +148,7 @@ func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.Rea
 		FlagType     types.String `tfsdk:"flag_type"`
 		DefaultValue types.Bool   `tfsdk:"default_value"`
 		Value        types.Bool   `tfsdk:"value"`
-		UserContext  lduser.User  `tfsdk:"context"`
+		UserContext  LDUser       `tfsdk:"context"`
 	}
 
 	tflog.Info(ctx, "test")
@@ -160,6 +159,16 @@ func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.Rea
 		return
 	}
 	tflog.Info(ctx, fmt.Sprintf("%+v", dataSourceState))
+
+	customData := map[string]tftypes.Value{}
+	err := dataSourceState.UserContext.Custom.As(&customData)
+	if err != nil {
+		// TODO
+	}
+	for key, val := range customData {
+		// key is the object field
+		// value is a tftypes.Value with the data in it
+	}
 
 	// set state
 	diags = resp.State.Set(ctx, &dataSourceState)
