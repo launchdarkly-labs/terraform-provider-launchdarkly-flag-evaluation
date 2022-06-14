@@ -36,7 +36,7 @@ func Provider() *schema.Provider {
 	}
 }
 
-func configureSDK(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+func configureSDK(_ context.Context, d *schema.ResourceData) (any, diag.Diagnostics) {
 	var config ld.Config
 
 	sdkKey := d.Get(sdk_key).(string)

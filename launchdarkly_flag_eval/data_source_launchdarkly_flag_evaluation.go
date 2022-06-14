@@ -2,12 +2,15 @@ package launchdarkly_flag_eval
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"gopkg.in/launchdarkly/go-sdk-common.v2/lduser"
+	"gopkg.in/launchdarkly/go-sdk-common.v2/ldvalue"
 	ld "gopkg.in/launchdarkly/go-server-sdk.v5"
 )
 
@@ -113,8 +116,10 @@ func dataSourceFlagEvaluation(typ schema.ValueType) *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
-						// customAttributes:
-						// todo custom
+						customAttributes: {
+							Type:     schema.TypeMap,
+							Optional: true,
+						},
 						// todo privateAttributes
 					},
 				},
@@ -123,16 +128,16 @@ func dataSourceFlagEvaluation(typ schema.ValueType) *schema.Resource {
 	}
 }
 
-func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
+	return func(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 		tflog.Info(ctx, "ENTERING FUNCTION")
 		var diags diag.Diagnostics
 		client := meta.(*ld.LDClient)
 
 		flagKey := d.Get(FLAG_KEY).(string)
-		rawContext := d.Get(CONTEXT).([]interface{})
+		rawContext := d.Get(CONTEXT).([]any)
 		// TODO construct user object properly
-		rawContextMap := rawContext[0].(map[string]interface{})
+		rawContextMap := rawContext[0].(map[string]any)
 		_ = rawContextMap
 		//userCtxBuilder := lduser.NewUserBuilder(rawContextMap[keyAttribute])
 		userCtxBuilder := lduser.NewUserBuilder("hello-world")
@@ -189,18 +194,20 @@ func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.
 				return diag.FromErr(err)
 			}
 			d.Set(DEFAULT_VALUE, defaultValue)
-			// case schema.TypeMap:
-			// 	var jsonRaw json.RawMessage
-			// 	err := jsonRaw.UnmarshalJSON([]byte(rawDefault))
-			// 	if err != nil {
-			// 		return diag.FromErr(err)
-			// 	}
+		case schema.TypeMap:
+			d.Set(FLAG_TYPE, "map")
+			var jsonRaw json.RawMessage
+			err := jsonRaw.UnmarshalJSON([]byte(CONTEXT))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 
-			// 	defaultValue := ldvalue.Raw(jsonRaw)
-			// 	value, err := client.JSONVariation(flagKey, userCtx, defaultValue)
-			// 	if err != nil {
-			// 		return diag.FromErr(err)
-			// 	}
+			defaultValue := ldvalue.Raw(jsonRaw)
+			value, err := client.JSONVariation(flagKey, userCtx, defaultValue)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			d.Set(DEFAULT_VALUE, value)
 		}
 
 		d.Set(FLAG_KEY, flagKey)
