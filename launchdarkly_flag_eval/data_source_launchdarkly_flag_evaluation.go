@@ -2,7 +2,6 @@ package launchdarkly_flag_eval
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -54,9 +53,8 @@ func dataSourceFlagEvaluation(typ schema.ValueType) *schema.Resource {
 				Required: true,
 			},
 			FLAG_TYPE: {
-				Type:             schema.TypeString,
-				Computed:         true,
-				ValidateDiagFunc: validation.ToDiagFunc(validation.StringInSlice([]string{"boolean", "string", "float", "int"}, false)),
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			DEFAULT_VALUE: {
 				Type:     typ,
@@ -158,12 +156,7 @@ func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.
 		case schema.TypeBool:
 			d.Set(FLAG_TYPE, "boolean")
 			defaultValue := d.Get(DEFAULT_VALUE).(bool)
-			tflog.Debug(ctx, "defaultValue is "+strconv.FormatBool(defaultValue))
-			tflog.Debug(ctx, "USER CTX KEY")
-			tflog.Debug(ctx, userCtx.GetKey())
 			value, err := client.BoolVariation(flagKey, userCtx, defaultValue)
-			tflog.Debug(ctx, "VALUE VALUE")
-			tflog.Debug(ctx, strconv.FormatBool(value))
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -212,7 +205,7 @@ func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.
 
 		d.Set(FLAG_KEY, flagKey)
 		// TODO we need helper functions to convert back and forth
-		// d.Set(CONTEXT, context)
+		d.Set(CONTEXT, rawContextMap)
 		d.SetId(flagKey)
 
 		return diags
