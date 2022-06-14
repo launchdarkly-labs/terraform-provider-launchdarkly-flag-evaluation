@@ -7,6 +7,13 @@ tmp="$root/tmp"
 bin="$tmp/bin"
 
 TF_CLI_CONFIG_FILE="$tmp/dev.tfrc"
+
+if [[ ${1:-} == "--rebuild" ]]; then
+  rm "$TF_CLI_CONFIG_FILE"
+  go build -o "$bin/terraform-provider-feature-flag-eval" "$root"
+  shift
+fi
+
 export TF_CLI_CONFIG_FILE
 
 if [[ ! -f $TF_CLI_CONFIG_FILE ]]; then
@@ -20,11 +27,6 @@ provider_installation {
   direct {}
 }
 EOF
-fi
-
-if [[ ${1:-} == "--rebuild" ]]; then
-  go build -o "$bin/terraform-provider-feature-flag-eval" "$root"
-  shift
 fi
 
 exec terraform "$@"
