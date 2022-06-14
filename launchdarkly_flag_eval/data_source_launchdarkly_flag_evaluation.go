@@ -3,11 +3,11 @@ package launchdarkly_flag_eval
 import (
 	"context"
 	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"gopkg.in/launchdarkly/go-sdk-common.v2/lduser"
 )
 
 const (
@@ -130,12 +130,26 @@ type dataSourceFlagEvaluationBoolean struct {
 }
 
 func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
+	type LDUser struct {
+		Key       types.String `tfsdk:"key"`
+		Secondary types.String `tfsdk:"secondary"`
+		Ip        types.String `tfsdk:"ip"`
+		Country   types.String `tfsdk:"country"`
+		Email     types.String `tfsdk:"email"`
+		FirstName types.String `tfsdk:"first_name"`
+		LastName  types.String `tfsdk:"last_name"`
+		Avatar    types.String `tfsdk:"avatar"`
+		Name      types.String `tfsdk:"name"`
+		Anonymous types.Bool   `tfsdk:"anonymous"`
+		//Custom    ldvalue.ValueMap
+	}
+
 	var dataSourceState struct {
-		FlagKey      string                 `tfsdk:"flag_key"`
-		FlagType     string                 `tfsdk:"flag_type"`
-		DefaultValue bool                   `tfsdk:"default_value"`
-		Value        bool                   `tfsdk:"value"`
-		UserContext  map[string]interface{} `tfsdk:"context"`
+		FlagKey      types.String `tfsdk:"flag_key"`
+		FlagType     types.String `tfsdk:"flag_type"`
+		DefaultValue types.Bool   `tfsdk:"default_value"`
+		Value        types.Bool   `tfsdk:"value"`
+		UserContext  lduser.User  `tfsdk:"context"`
 	}
 
 	tflog.Info(ctx, "test")

@@ -45,7 +45,7 @@ func (p *provider) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics)
 }
 
 type providerData struct {
-	sdkKey types.String `tfsdk:"sdk_key"`
+	SDKKey types.String `tfsdk:"sdk_key"`
 }
 
 // func Provider() *schema.Provider {
@@ -78,10 +78,10 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 		return
 	}
 	var sdkKey string
-	if config.sdkKey.Unknown || config.sdkKey.Null {
+	if config.SDKKey.Unknown || config.SDKKey.Null {
 		sdkKey = os.Getenv(LAUNCHDARKLY_SDK_KEY)
 	} else {
-		sdkKey = config.sdkKey.Value
+		sdkKey = config.SDKKey.Value
 	}
 
 	if sdkKey == "" {
