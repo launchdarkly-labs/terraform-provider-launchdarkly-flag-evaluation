@@ -2,7 +2,6 @@ package launchdarkly_flag_eval
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -42,7 +41,10 @@ const (
 	nameAttribute = "name"
 	// AnonymousAttribute is the standard attribute name corresponding to User.GetAnonymous().
 	anonymousAttribute = "anonymous"
-	customAttributes   = "custom"
+	// CustomAttributes are standard attribute name corresponding to User.GetAllCustom()
+	customAttributes = "custom"
+	// PrivateAttributes are standard attributes name corresponding to User.
+	// privateAttributes = "private"
 )
 
 func dataSourceFlagEvaluation(typ schema.ValueType) *schema.Resource {
@@ -128,6 +130,39 @@ func dataSourceFlagEvaluation(typ schema.ValueType) *schema.Resource {
 	}
 }
 
+func makeContextsForLDUser(attributes map[string]any, user lduser.UserBuilder) lduser.UserBuilder {
+	for key, val := range attributes {
+		switch key {
+		case secondaryKeyAttribute:
+			user.Secondary(val.(string))
+		case ipAttribute:
+			user.IP(val.(string))
+		case countryAttribute:
+			user.Country(val.(string))
+		case emailAttribute:
+			user.Email(val.(string))
+		case firstNameAttribute:
+			user.FirstName(val.(string))
+		case lastNameAttribute:
+			user.LastName(val.(string))
+		case avatarAttribute:
+			user.Avatar(val.(string))
+		case nameAttribute:
+			user.Name(val.(string))
+		case anonymousAttribute:
+			user.Anonymous(val.(bool))
+		case customAttributes:
+			ldMap := ldvalue.ValueMapBuild()
+			valMap := val.(map[string]any)
+			for customKey, customVal := range valMap {
+				ldMap.Set(customKey, ldvalue.String(customVal.(string)))
+			}
+			user = user.Custom(key, ldMap.Build().AsValue())
+		}
+	}
+	return user
+}
+
 func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 	return func(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
 		tflog.Info(ctx, "ENTERING FUNCTION")
@@ -141,6 +176,7 @@ func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.
 		_ = rawContextMap
 		//userCtxBuilder := lduser.NewUserBuilder(rawContextMap[keyAttribute])
 		userCtxBuilder := lduser.NewUserBuilder("hello-world")
+		userCtxBuilder = makeContextsForLDUser(rawContextMap, userCtxBuilder)
 		//userCtxBuilder.Name(rawContextMap[nameAttribute])
 		userCtx := userCtxBuilder.Build()
 		// todo rest of userCtx
@@ -194,20 +230,20 @@ func dataSourceFlagEvaluationReadWrapper(typ schema.ValueType) func(ctx context.
 				return diag.FromErr(err)
 			}
 			d.Set(DEFAULT_VALUE, defaultValue)
-		case schema.TypeMap:
-			d.Set(FLAG_TYPE, "map")
-			var jsonRaw json.RawMessage
-			err := jsonRaw.UnmarshalJSON([]byte(CONTEXT))
-			if err != nil {
-				return diag.FromErr(err)
-			}
+			// case schema.TypeMap:
+			// 	d.Set(FLAG_TYPE, "map")
+			// 	var jsonRaw json.RawMessage
+			// 	err := jsonRaw.UnmarshalJSON([]byte(CONTEXT))
+			// 	if err != nil {
+			// 		return diag.FromErr(err)
+			// 	}
 
-			defaultValue := ldvalue.Raw(jsonRaw)
-			value, err := client.JSONVariation(flagKey, userCtx, defaultValue)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			d.Set(DEFAULT_VALUE, value)
+			// 	defaultValue := ldvalue.Raw(jsonRaw)
+			// 	value, err := client.JSONVariation(flagKey, userCtx, defaultValue)
+			// 	if err != nil {
+			// 		return diag.FromErr(err)
+			// 	}
+			// 	d.Set(DEFAULT_VALUE, value)
 		}
 
 		d.Set(FLAG_KEY, flagKey)
