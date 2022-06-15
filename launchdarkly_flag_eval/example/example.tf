@@ -20,8 +20,8 @@ data "feature-flag-eval_boolean" "mybool" {
       "test"  = "foo"
       "test2" = 123
       "test3" = false
-      // TODO: implement lists
-      "test4" = ["red", "orange", "yellow"]
+      "test4" = ["red", "orange", "yellow", true, 4] // tuple example
+      "test5" = tolist(["b", "w"]) // list example
       // note: cannot pass JSON objects as custom properties
       // https://docs.launchdarkly.com/home/users/attributes
     }
