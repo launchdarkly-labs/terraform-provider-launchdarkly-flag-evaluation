@@ -47,75 +47,7 @@ type dataSourceFlagEvaluationBooleanType struct {
 }
 
 func (r dataSourceFlagEvaluationBooleanType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
-		Attributes: map[string]tfsdk.Attribute{
-			flagType: {
-				Type:     types.StringType,
-				Computed: true,
-			},
-			value: {
-				Type:     types.BoolType, // TODO refactor to pass type via wrapper function
-				Computed: true,
-			},
-			flagKey: {
-				Type:     types.StringType,
-				Required: true,
-			},
-			defaultValue: {
-				Type:     types.BoolType, // TODO refactor to pass type via wrapper function
-				Required: true,
-			},
-			userContext: {
-				Required: true,
-				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
-					keyAttribute: {
-						Type:     types.StringType,
-						Required: true,
-					},
-					secondaryKeyAttribute: {
-						Type:     types.StringType,
-						Optional: true,
-					},
-					ipAttribute: {
-						Type:     types.StringType,
-						Optional: true,
-					},
-					countryAttribute: {
-						Type:     types.StringType,
-						Optional: true,
-					},
-					emailAttribute: {
-						Type:     types.StringType,
-						Optional: true,
-					},
-					firstNameAttribute: {
-						Type:     types.StringType,
-						Optional: true,
-					},
-					lastNameAttribute: {
-						Type:     types.StringType,
-						Optional: true,
-					},
-					avatarAttribute: {
-						Type:     types.StringType,
-						Optional: true,
-					},
-					nameAttribute: {
-						Type:     types.StringType,
-						Optional: true,
-					},
-					anonymousAttribute: {
-						Type:     types.BoolType,
-						Optional: true,
-					},
-					customAttributes: {
-						Optional: true,
-						Type:     DynamicType{},
-					},
-				}),
-			},
-		},
-	}, nil
+	return getFlagEvaluationSchemaForType(types.BoolType)
 }
 
 func (d dataSourceFlagEvaluationBooleanType) NewDataSource(ctx context.Context, p tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
@@ -145,7 +77,6 @@ type LDUser struct {
 func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
 	var dataSourceState struct {
 		FlagKey      types.String `tfsdk:"flag_key"`
-		FlagType     types.String `tfsdk:"flag_type"`
 		DefaultValue types.Bool   `tfsdk:"default_value"`
 		Value        types.Bool   `tfsdk:"value"`
 		UserContext  LDUser       `tfsdk:"context"`
@@ -159,10 +90,6 @@ func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.Rea
 		return
 	}
 	tflog.Info(ctx, fmt.Sprintf("STATE %+v", dataSourceState))
-
-	for key, val := range dataSourceState.UserContext.Custom.Values {
-		tflog.Info(ctx, fmt.Sprintf("Got %s with value %s", key, val))
-	}
 
 	userCtx := convertUserContextToLDUserContext(dataSourceState.UserContext.Key.Value, dataSourceState.UserContext)
 	evaluation, err := d.p.client.BoolVariation(dataSourceState.FlagKey.Value, userCtx, dataSourceState.DefaultValue.Value)
@@ -190,6 +117,10 @@ func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.Rea
 }
 
 func convertUserContextToLDUserContext(userKey string, userContext LDUser) lduser.User {
+	for key, val := range userContext.Custom.Values {
+		tflog.Info(context.Background(), fmt.Sprintf("Got %s with value %s", key, val))
+	}
+
 	// builder := lduser.NewUserBuilder(userKey)
 	return lduser.User{}
 }
