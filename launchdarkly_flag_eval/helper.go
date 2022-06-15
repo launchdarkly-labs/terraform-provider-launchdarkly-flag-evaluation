@@ -234,26 +234,26 @@ func convert(ctx context.Context, key string, val tftypes.Value, diags diag.Diag
 		// builder.Custom(key, ldvalue.Float64(f))
 		return ldvalue.Float64(f), false
 
-	case val.Type().Is(tftypes.Object{}): // tftypes.Object.Is(val.Type()):
-		var obj map[string]tftypes.Value
+	// case val.Type().Is(tftypes.Object{}): // tftypes.Object.Is(val.Type()):
+	// 	var obj map[string]tftypes.Value
 
-		err := val.As(&obj)
-		if err != nil {
-			diags.AddAttributeError(nil, "Invalid type", "Can not convert value to map")
-			return ldvalue.Value{}, true
-		}
+	// 	err := val.As(&obj)
+	// 	if err != nil {
+	// 		diags.AddAttributeError(nil, "Invalid type", "Can not convert value to map")
+	// 		return ldvalue.Value{}, true
+	// 	}
 
-		ldvalBuilder := ldvalue.ObjectBuildWithCapacity(len(obj))
-		for k, v := range obj {
-			newldval, isUnknown := convert(ctx, k, v, diags)
-			if isUnknown {
-				return ldvalue.Value{}, true
-			}
+	// 	ldvalBuilder := ldvalue.ObjectBuildWithCapacity(len(obj))
+	// 	for k, v := range obj {
+	// 		newldval, isUnknown := convert(ctx, k, v, diags)
+	// 		if isUnknown {
+	// 			return ldvalue.Value{}, true
+	// 		}
 
-			ldvalBuilder.Set(k, newldval)
-		}
+	// 		ldvalBuilder.Set(k, newldval)
+	// 	}
 
-		return ldvalBuilder.Build(), false
+	// 	return ldvalBuilder.Build(), false
 
 	default:
 		// todo object/array

@@ -15,16 +15,15 @@ data "feature-flag-eval_boolean" "mybool" {
   flag_key      = "boolean-flag"
   default_value = true
   context = {
-    key = "hosh@launchdarkly.com"
+    key = "hosh1@launchdarkly.com"
     custom = {
       "test"  = "foo"
       "test2" = 123
       "test3" = false
+      // TODO: implement lists
       "test4" = ["red", "orange", "yellow"]
-      "test5" = {
-        "one" = 1
-        "yay" = true
-      }
+      // note: cannot pass JSON objects as custom properties
+      // https://docs.launchdarkly.com/home/users/attributes
     }
   }
 }
