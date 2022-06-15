@@ -152,12 +152,10 @@ func makeContextsForLDUser(attributes map[string]any, user lduser.UserBuilder) l
 		case anonymousAttribute:
 			user.Anonymous(val.(bool))
 		case customAttributes:
-			ldMap := ldvalue.ValueMapBuild()
 			valMap := val.(map[string]any)
 			for customKey, customVal := range valMap {
-				ldMap.Set(customKey, ldvalue.String(customVal.(string)))
+				user = user.Custom(customKey, ldvalue.String(customVal.(string)))
 			}
-			user = user.Custom(key, ldMap.Build().AsValue())
 		}
 	}
 	return user
