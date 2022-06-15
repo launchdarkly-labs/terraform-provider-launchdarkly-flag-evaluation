@@ -8,14 +8,14 @@ terraform {
 }
 
 provider "feature-flag-eval" {
-  sdk_key = "sdk-5b155426-b39a-491d-bc2a-cdfb42f8f3c6"
+  sdk_key = "sdk-2aaff62c-d031-47d1-9594-add194fce944"
 }
 
 data "feature-flag-eval_boolean" "mybool" {
-  flag_key      = "terraform-eval"
+  flag_key      = "boolean-flag"
   default_value = false
   context {
-    key = "mchheda@launchdarkly.com"
+    key = "hosh@launchdarkly.com"
     custom = tomap({
       "host" = "mchheda-local"
     })
