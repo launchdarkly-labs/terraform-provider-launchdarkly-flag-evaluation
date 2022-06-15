@@ -3,6 +3,7 @@ package launchdarkly_flag_eval
 import (
 	"context"
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -83,19 +84,6 @@ func getFlagEvaluationSchemaForType(typ attr.Type) (tfsdk.Schema, diag.Diagnosti
 }
 
 func convertUserContextToLDUserContext(userKey string, userContext LDUser, diags diag.Diagnostics) (ldUserContext lduser.User, isUnknown bool) {
-	// type LDUser struct {
-	// 	Key       types.String `tfsdk:"key"`
-	// 	Secondary types.String `tfsdk:"secondary"`
-	// 	IP        types.String `tfsdk:"ip"`
-	// 	Country   types.String `tfsdk:"country"`
-	// 	Email     types.String `tfsdk:"email"`
-	// 	FirstName types.String `tfsdk:"first_name"`
-	// 	LastName  types.String `tfsdk:"last_name"`
-	// 	Avatar    types.String `tfsdk:"avatar"`
-	// 	Name      types.String `tfsdk:"name"`
-	// 	Anonymous types.Bool   `tfsdk:"anonymous"`
-	// 	Custom    Dynamic      `tfsdk:"custom"`
-	// }
 	for key, val := range userContext.Custom.Values {
 		tflog.Info(context.Background(), fmt.Sprintf("Got %s with value %s", key, val))
 	}
@@ -120,7 +108,7 @@ func convertUserContextToLDUserContext(userKey string, userContext LDUser, diags
 		tflog.Info(context.Background(), "IP is unknown\n")
 		return lduser.User{}, true
 	}
-	if !userContext.IP.Null { // TODO handle unknown value
+	if !userContext.IP.Null {
 		builder.IP(userContext.IP.Value)
 	}
 
@@ -128,7 +116,7 @@ func convertUserContextToLDUserContext(userKey string, userContext LDUser, diags
 		tflog.Info(context.Background(), "Country is unknown\n")
 		return lduser.User{}, true
 	}
-	if !userContext.Country.Null { // TODO handle unknown value
+	if !userContext.Country.Null {
 		builder.Country(userContext.Country.Value)
 	}
 
@@ -136,7 +124,7 @@ func convertUserContextToLDUserContext(userKey string, userContext LDUser, diags
 		tflog.Info(context.Background(), "Email is unknown\n")
 		return lduser.User{}, true
 	}
-	if !userContext.Email.Null { // TODO handle unknown value
+	if !userContext.Email.Null {
 		builder.Email(userContext.Email.Value)
 	}
 
@@ -144,7 +132,7 @@ func convertUserContextToLDUserContext(userKey string, userContext LDUser, diags
 		tflog.Info(context.Background(), "FirstName is unknown\n")
 		return lduser.User{}, true
 	}
-	if !userContext.FirstName.Null { // TODO handle unknown value
+	if !userContext.FirstName.Null {
 		builder.FirstName(userContext.FirstName.Value)
 	}
 
@@ -152,7 +140,7 @@ func convertUserContextToLDUserContext(userKey string, userContext LDUser, diags
 		tflog.Info(context.Background(), "LastName is unknown\n")
 		return lduser.User{}, true
 	}
-	if !userContext.LastName.Null { // TODO handle unknown value
+	if !userContext.LastName.Null {
 		builder.LastName(userContext.LastName.Value)
 	}
 
@@ -160,7 +148,7 @@ func convertUserContextToLDUserContext(userKey string, userContext LDUser, diags
 		tflog.Info(context.Background(), "Avatar is unknown\n")
 		return lduser.User{}, true
 	}
-	if !userContext.Avatar.Null { // TODO handle unknown value
+	if !userContext.Avatar.Null {
 		builder.Avatar(userContext.Avatar.Value)
 	}
 
@@ -168,7 +156,7 @@ func convertUserContextToLDUserContext(userKey string, userContext LDUser, diags
 		tflog.Info(context.Background(), "Name is unknown\n")
 		return lduser.User{}, true
 	}
-	if !userContext.Name.Null { // TODO handle unknown value
+	if !userContext.Name.Null {
 		builder.Name(userContext.Name.Value)
 	}
 
@@ -176,7 +164,7 @@ func convertUserContextToLDUserContext(userKey string, userContext LDUser, diags
 		tflog.Info(context.Background(), "Anonymous is unknown\n")
 		return lduser.User{}, true
 	}
-	if !userContext.Anonymous.Null { // TODO handle unknown value
+	if !userContext.Anonymous.Null {
 		builder.Anonymous(userContext.Anonymous.Value)
 	}
 
