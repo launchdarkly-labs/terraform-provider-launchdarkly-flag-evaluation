@@ -12,11 +12,17 @@ import (
 	"gopkg.in/launchdarkly/go-server-sdk.v5/ldcomponents"
 )
 
-const LAUNCHDARKLY_SDK_KEY = "LAUNCHDARKLY_SDK_KEY"
+const (
+	LAUNCHDARKLY_SDK_KEY = "LAUNCHDARKLY_SDK_KEY"
+	sdk_key              = "sdk_key"
 
-const sdk_key = "sdk_key"
-
-var stderr = os.Stderr
+	flagKey      = "flag_key"
+	flagType     = "flag_type"
+	userContext  = "context"
+	variation    = "variation_type"
+	value        = "value"
+	defaultValue = "default_value"
+)
 
 func New() tfsdk.Provider {
 	return &provider{}
@@ -118,7 +124,7 @@ func (p *provider) GetResources(_ context.Context) (map[string]tfsdk.ResourceTyp
 func (p *provider) GetDataSources(_ context.Context) (map[string]tfsdk.DataSourceType, diag.Diagnostics) {
 	return map[string]tfsdk.DataSourceType{
 		"feature-flag-eval_boolean": dataSourceFlagEvaluationBooleanType{},
-		// "feature-flag-eval_string":  dataSourceFlagEvaluationStringType{},
+		"feature-flag-eval_string":  dataSourceFlagEvaluationStringType{},
 		// "feature-flag-eval_int":     dataSourceFlagEvaluationIntType{},
 		// "feature-flag-eval_float":   dataSourceFlagEvaluationFloatType{},
 		// "feature-flag-eval_json":   dataSourceFlagEvaluationJSONType{},

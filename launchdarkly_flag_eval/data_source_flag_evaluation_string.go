@@ -10,28 +10,28 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-type dataSourceFlagEvaluationBooleanType struct {
+type dataSourceFlagEvaluationStringType struct {
 }
 
-func (d dataSourceFlagEvaluationBooleanType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return getFlagEvaluationSchemaForType(types.BoolType)
+func (d dataSourceFlagEvaluationStringType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+	return getFlagEvaluationSchemaForType(types.StringType)
 }
 
-func (d dataSourceFlagEvaluationBooleanType) NewDataSource(ctx context.Context, p tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
-	return dataSourceFlagEvaluationBoolean{
+func (d dataSourceFlagEvaluationStringType) NewDataSource(ctx context.Context, p tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
+	return dataSourceFlagEvaluationString{
 		p: *(p.(*provider)),
 	}, nil
 }
 
-type dataSourceFlagEvaluationBoolean struct {
+type dataSourceFlagEvaluationString struct {
 	p provider
 }
 
-func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
+func (d dataSourceFlagEvaluationString) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
 	var dataSourceState struct {
 		FlagKey      types.String `tfsdk:"flag_key"`
-		DefaultValue types.Bool   `tfsdk:"default_value"`
-		Value        types.Bool   `tfsdk:"value"`
+		DefaultValue types.String `tfsdk:"default_value"`
+		Value        types.String `tfsdk:"value"`
 		UserContext  LDUser       `tfsdk:"context"`
 	}
 
@@ -47,7 +47,7 @@ func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.Rea
 
 	tflog.Info(ctx, fmt.Sprintf("THIS IS THE USER CONTEXT BEFORE CONVERSION: %v", dataSourceState.UserContext))
 	userCtx, _ := convertUserContextToLDUserContext(ctx, dataSourceState.UserContext.Key.Value, dataSourceState.UserContext, resp.Diagnostics)
-	evaluation, err := d.p.client.BoolVariation(dataSourceState.FlagKey.Value, userCtx, dataSourceState.DefaultValue.Value)
+	evaluation, err := d.p.client.StringVariation(dataSourceState.FlagKey.Value, userCtx, dataSourceState.DefaultValue.Value)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Flag evaluation failed",
@@ -57,7 +57,7 @@ func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.Rea
 	}
 	d.p.client.Flush()
 
-	dataSourceState.Value = types.Bool{
+	dataSourceState.Value = types.String{
 		Unknown: false,
 		Null:    false,
 		Value:   evaluation,
