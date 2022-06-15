@@ -45,12 +45,34 @@ data "feature-flag-eval_string" "mystring" {
   }
 }
 
+data "feature-flag-eval_int" "myint" {
+  flag_key      = "int-flag"
+  default_value = 1
+  context       = {
+    key    = "mwong@launchdarkly.com"
+    custom = {
+      "test"  = "bar"
+      "test2" = 789
+      "test3" = false
+      "test4" = ["red", "green", true, 4] // tuple example
+      "test5" = tolist(["c", "f"]) // list example
+      // note: cannot pass JSON objects as custom properties
+      // https://docs.launchdarkly.com/home/users/attributes
+    }
+  }
+}
+
+
 output "variation_value" {
   value = data.feature-flag-eval_boolean.mybool
 }
 
 output "variation_value_string" {
   value = data.feature-flag-eval_string.mystring
+}
+
+output "variation_value_int" {
+  value = data.feature-flag-eval_int.myint
 }
 
 # locals {
