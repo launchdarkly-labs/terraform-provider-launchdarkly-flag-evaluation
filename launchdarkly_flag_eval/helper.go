@@ -234,8 +234,8 @@ func convert(ctx context.Context, key string, val tftypes.Value, diags diag.Diag
 		// builder.Custom(key, ldvalue.Float64(f))
 		return ldvalue.Float64(f), false
 
-	case val.Type().Is(tftypes.Tuple{}):
-		tflog.Info(ctx, "THIS IS A TUPLE")
+	case val.Type().Is(tftypes.Tuple{}) || val.Type().Is(tftypes.List{}):
+		tflog.Info(ctx, "THIS IS A LIST/TUPLE")
 		var v []tftypes.Value
 		err := val.As(&v)
 
@@ -264,10 +264,6 @@ func convert(ctx context.Context, key string, val tftypes.Value, diags diag.Diag
 		ret := ldArr.Build()
 		tflog.Info(ctx, fmt.Sprintf("value of list : %s", ret.String()))
 		return ret, false
-	case val.Type().Is(tftypes.List{}):
-		// TODO
-		tflog.Info(ctx, "THIS IS A LIST")
-
 	// case val.Type().Is(tftypes.Object{}): // tftypes.Object.Is(val.Type()):
 	// 	var obj map[string]tftypes.Value
 
