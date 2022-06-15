@@ -127,8 +127,6 @@ func (p *provider) GetDataSources(_ context.Context) (map[string]tfsdk.DataSourc
 		"feature-flag-eval_string":  dataSourceFlagEvaluationStringType{},
 		"feature-flag-eval_int":     dataSourceFlagEvaluationIntType{},
 		"feature-flag-eval_float":   dataSourceFlagEvaluationFloatType{},
-		// "feature-flag-eval_int":     dataSourceFlagEvaluationIntType{},
-		// "feature-flag-eval_float":   dataSourceFlagEvaluationFloatType{},
 		// "feature-flag-eval_json":   dataSourceFlagEvaluationJSONType{},
 	}, nil
 }
