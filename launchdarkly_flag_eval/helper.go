@@ -234,6 +234,11 @@ func convert(ctx context.Context, key string, val tftypes.Value, diags diag.Diag
 		// builder.Custom(key, ldvalue.Float64(f))
 		return ldvalue.Float64(f), false
 
+	case val.Type().Is(tftypes.Tuple{}):
+		// TODO
+	case val.Type().Is(tftypes.List{}):
+		// TODO
+
 	// case val.Type().Is(tftypes.Object{}): // tftypes.Object.Is(val.Type()):
 	// 	var obj map[string]tftypes.Value
 
