@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"gopkg.in/launchdarkly/go-sdk-common.v2/lduser"
 )
 
 const (
@@ -63,7 +62,7 @@ type dataSourceFlagEvaluationBoolean struct {
 type LDUser struct {
 	Key       types.String `tfsdk:"key"`
 	Secondary types.String `tfsdk:"secondary"`
-	Ip        types.String `tfsdk:"ip"`
+	IP        types.String `tfsdk:"ip"`
 	Country   types.String `tfsdk:"country"`
 	Email     types.String `tfsdk:"email"`
 	FirstName types.String `tfsdk:"first_name"`
@@ -114,13 +113,4 @@ func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.Rea
 	if resp.Diagnostics.HasError() {
 		return
 	}
-}
-
-func convertUserContextToLDUserContext(userKey string, userContext LDUser) lduser.User {
-	for key, val := range userContext.Custom.Values {
-		tflog.Info(context.Background(), fmt.Sprintf("Got %s with value %s", key, val))
-	}
-
-	// builder := lduser.NewUserBuilder(userKey)
-	return lduser.User{}
 }
