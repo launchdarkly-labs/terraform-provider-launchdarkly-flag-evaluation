@@ -95,7 +95,7 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 
 	var ldConfig ld.Config
 	// TODO is there a shutdown call?
-	ldConfig.Events = ldcomponents.SendEvents().FlushInterval(10 * time.Second)
+	ldConfig.Events = ldcomponents.SendEvents()
 	// default poll interval is 30 seconds
 	ldConfig.DataSource = ldcomponents.PollingDataSource()
 	c, err := ld.MakeCustomClient(sdkKey, ldConfig, 5*time.Second)

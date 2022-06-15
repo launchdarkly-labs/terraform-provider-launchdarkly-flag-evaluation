@@ -49,21 +49,21 @@ type dataSourceFlagEvaluationBooleanType struct {
 func (r dataSourceFlagEvaluationBooleanType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Attributes: map[string]tfsdk.Attribute{
-			flagKey: {
-				Type:     types.StringType,
-				Required: true,
-			},
 			flagType: {
 				Type:     types.StringType,
 				Computed: true,
 			},
-			defaultValue: {
-				Type:     types.BoolType, // TODO refactor to pass type via wrapper function
-				Required: true,
-			},
 			value: {
 				Type:     types.BoolType, // TODO refactor to pass type via wrapper function
 				Computed: true,
+			},
+			flagKey: {
+				Type:     types.StringType,
+				Required: true,
+			},
+			defaultValue: {
+				Type:     types.BoolType, // TODO refactor to pass type via wrapper function
+				Required: true,
 			},
 			userContext: {
 				Required: true,
@@ -165,16 +165,21 @@ func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.Rea
 	}
 
 	userCtx := convertUserContextToLDUserContext(dataSourceState.UserContext.Key.Value, dataSourceState.UserContext)
-	evaluation, err := d.p.client.BoolVariation(flagKey, userCtx, dataSourceState.DefaultValue.Value)
+	evaluation, err := d.p.client.BoolVariation(dataSourceState.FlagKey.Value, userCtx, dataSourceState.DefaultValue.Value)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Flag evaluation failed",
-			"Could not evaluate flag:\n\n"+err.Error(),
+			"Could not evaluate flag: "+err.Error(),
 		)
 		return
 	}
+	d.p.client.Flush()
 
-	dataSourceState.Value = evaluation.(types.Bool)
+	dataSourceState.Value = types.Bool{
+		Unknown: false,
+		Null:    false,
+		Value:   evaluation,
+	}
 
 	// set state
 	diags = resp.State.Set(ctx, &dataSourceState)
