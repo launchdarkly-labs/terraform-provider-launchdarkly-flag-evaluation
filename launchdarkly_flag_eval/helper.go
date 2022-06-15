@@ -234,39 +234,10 @@ func convert(ctx context.Context, key string, val tftypes.Value, diags diag.Diag
 		// builder.Custom(key, ldvalue.Float64(f))
 		return ldvalue.Float64(f), false
 
-	case val.Type().Is(tftypes.Tuple{}):
-		tflog.Info(ctx, "THIS IS A TUPLE")
+	case val.Type().Is(tftypes.Tuple{}) || val.Type().Is(tftypes.List{}):
+		tflog.Info(ctx, "THIS IS A LIST/TUPLE")
 		var v []tftypes.Value
 		err := val.As(&v)
-
-		if err != nil {
-			tflog.Info(ctx, fmt.Sprintf("failed to convert %v to list", val))
-			diags.AddAttributeError(nil, "Invalid type", "Can not convert value to list")
-			return ldvalue.Value{}, true
-		}
-		ldArr := ldvalue.ArrayBuild()
-		for _, val := range v {
-			switch {
-			case val.Type().Equal(tftypes.Bool):
-				var temp bool
-				_ = val.As(&temp)
-				ldArr.Add(ldvalue.Bool(temp))
-			case val.Type().Equal(tftypes.Number):
-				var temp int
-				_ = val.As(&temp)
-				ldArr.Add(ldvalue.Int(temp))
-			case val.Type().Equal(tftypes.String):
-				var temp string
-				_ = val.As(&temp)
-				ldArr.Add(ldvalue.String(temp))
-			}
-		}
-		ret := ldArr.Build()
-		tflog.Info(ctx, fmt.Sprintf("value of list : %s", ret.String()))
-		return ret, false
-	case val.Type().Is(tftypes.List{}):
-		// TODO
-		tflog.Info(ctx, "THIS IS A LIST")
 
 		if err != nil {
 			tflog.Info(ctx, fmt.Sprintf("failed to convert %v to list", val))
