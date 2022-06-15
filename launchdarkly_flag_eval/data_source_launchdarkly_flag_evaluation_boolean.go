@@ -42,10 +42,9 @@ const (
 )
 
 type dataSourceFlagEvaluationBooleanType struct {
-	p provider
 }
 
-func (r dataSourceFlagEvaluationBooleanType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (d dataSourceFlagEvaluationBooleanType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return getFlagEvaluationSchemaForType(types.BoolType)
 }
 
@@ -81,16 +80,17 @@ func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.Rea
 		UserContext  LDUser       `tfsdk:"context"`
 	}
 
-	tflog.Info(ctx, "test")
+	tflog.Info(ctx, "test\n")
 
 	diags := req.Config.Get(ctx, &dataSourceState)
 	if diags.HasError() {
 		resp.Diagnostics.Append(diags...)
 		return
 	}
-	tflog.Info(ctx, fmt.Sprintf("STATE %+v", dataSourceState))
+	tflog.Info(ctx, fmt.Sprintf("STATE %+v\n", dataSourceState))
+	tflog.Info(ctx, "--------\n")
 
-	userCtx := convertUserContextToLDUserContext(dataSourceState.UserContext.Key.Value, dataSourceState.UserContext)
+	userCtx, _ := convertUserContextToLDUserContext(dataSourceState.UserContext.Key.Value, dataSourceState.UserContext, resp.Diagnostics)
 	evaluation, err := d.p.client.BoolVariation(dataSourceState.FlagKey.Value, userCtx, dataSourceState.DefaultValue.Value)
 	if err != nil {
 		resp.Diagnostics.AddError(

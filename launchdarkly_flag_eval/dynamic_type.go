@@ -18,6 +18,9 @@ func (d DynamicType) TerraformType(_ context.Context) tftypes.Type {
 func (d DynamicType) ValueFromTerraform(_ context.Context, val tftypes.Value) (attr.Value, error) {
 	vals := map[string]tftypes.Value{}
 	err := val.As(&vals)
+	if err != nil {
+		return nil, err
+	}
 	return Dynamic{
 		Values: vals,
 	}, err
