@@ -126,7 +126,6 @@ func convertUserContextToLDUserContext(ctx context.Context, userKey string, user
 	// for key, val := range userContext.Custom.Values {
 	// 	tflog.Info(ctx, fmt.Sprintf("Got %s with value %s", key, val))
 	// }
-	//
 
 	builder := lduser.NewUserBuilder(userKey)
 	if userContext.Key.Unknown {
