@@ -39,6 +39,7 @@ data "feature-flag-eval_string" "mystring" {
       "test3" = false
       "test4" = ["black", "white", true, 4] // tuple example
       "test5" = tolist(["a", "d"]) // list example
+      "test6" = 100.50
       // note: cannot pass JSON objects as custom properties
       // https://docs.launchdarkly.com/home/users/attributes
     }
@@ -56,11 +57,31 @@ data "feature-flag-eval_int" "myint" {
       "test3" = false
       "test4" = ["red", "green", true, 4] // tuple example
       "test5" = tolist(["c", "f"]) // list example
+      "test6" = 2.2
       // note: cannot pass JSON objects as custom properties
       // https://docs.launchdarkly.com/home/users/attributes
     }
   }
 }
+
+data "feature-flag-eval_float" "myfloat" {
+  flag_key      = "float-flag"
+  default_value = 1
+  context       = {
+    key    = "mwong@launchdarkly.com"
+    custom = {
+      "test"  = "bar"
+      "test2" = 789
+      "test3" = false
+      "test4" = ["red", "green", true, 4] // tuple example
+      "test5" = tolist(["c", "f"]) // list example
+      "test6" = 6.5
+      // note: cannot pass JSON objects as custom properties
+      // https://docs.launchdarkly.com/home/users/attributes
+    }
+  }
+}
+
 
 
 output "variation_value" {
@@ -73,6 +94,10 @@ output "variation_value_string" {
 
 output "variation_value_int" {
   value = data.feature-flag-eval_int.myint
+}
+
+output "variation_value_float" {
+  value = data.feature-flag-eval_float.myfloat
 }
 
 # locals {
