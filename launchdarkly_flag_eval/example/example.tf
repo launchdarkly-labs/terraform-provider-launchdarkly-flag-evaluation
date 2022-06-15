@@ -39,23 +39,6 @@ data "feature-flag-eval_string" "mystring" {
       "test3" = false
       "test4" = ["black", "white", true, 4] // tuple example
       "test5" = tolist(["a", "d"]) // list example
-      // note: cannot pass JSON objects as custom properties
-      // https://docs.launchdarkly.com/home/users/attributes
-    }
-  }
-}
-
-data "feature-flag-eval_string" "mystring" {
-  flag_key      = "string-flag"
-  default_value = "def"
-  context = {
-    key = "mchheda@launchdarkly.com"
-    custom = {
-      "test"  = "bar"
-      "test2" = 456
-      "test3" = false
-      "test4" = ["black", "white", true, 4] // tuple example
-      "test5" = tolist(["a", "d"]) // list example
       "test6" = 100.50
       // note: cannot pass JSON objects as custom properties
       // https://docs.launchdarkly.com/home/users/attributes
