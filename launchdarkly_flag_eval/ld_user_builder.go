@@ -5,16 +5,54 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/hashicorp/terraform-plugin-go/tftypes"
-
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+
 	"gopkg.in/launchdarkly/go-sdk-common.v2/lduser"
 	"gopkg.in/launchdarkly/go-sdk-common.v2/ldvalue"
 )
+
+const (
+	// KeyAttribute is the standard attribute name corresponding to User.GetKey().
+	keyAttribute = "key"
+	// SecondaryKeyAttribute is the standard attribute name corresponding to User.GetSecondaryKey().
+	secondaryKeyAttribute = "secondary"
+	// IPAttribute is the standard attribute name corresponding to User.GetIP().
+	ipAttribute = "ip"
+	// CountryAttribute is the standard attribute name corresponding to User.GetCountry().
+	countryAttribute = "country"
+	// EmailAttribute is the standard attribute name corresponding to User.GetEmail().
+	emailAttribute = "email"
+	// FirstNameAttribute is the standard attribute name corresponding to User.GetFirstName().
+	firstNameAttribute = "first_name"
+	// LastNameAttribute is the standard attribute name corresponding to User.GetLastName().
+	lastNameAttribute = "last_name"
+	// AvatarAttribute is the standard attribute name corresponding to User.GetAvatar().
+	avatarAttribute = "avatar"
+	// NameAttribute is the standard attribute name corresponding to User.GetName().
+	nameAttribute = "name"
+	// AnonymousAttribute is the standard attribute name corresponding to User.GetAnonymous().
+	anonymousAttribute = "anonymous"
+	customAttributes   = "custom"
+)
+
+type LDUser struct {
+	Key       types.String `tfsdk:"key"`
+	Secondary types.String `tfsdk:"secondary"`
+	IP        types.String `tfsdk:"ip"`
+	Country   types.String `tfsdk:"country"`
+	Email     types.String `tfsdk:"email"`
+	FirstName types.String `tfsdk:"first_name"`
+	LastName  types.String `tfsdk:"last_name"`
+	Avatar    types.String `tfsdk:"avatar"`
+	Name      types.String `tfsdk:"name"`
+	Anonymous types.Bool   `tfsdk:"anonymous"`
+	Custom    Dynamic      `tfsdk:"custom"`
+}
 
 func getFlagEvaluationSchemaForType(typ attr.Type) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
