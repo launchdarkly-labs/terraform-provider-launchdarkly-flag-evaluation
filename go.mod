@@ -3,8 +3,9 @@ module github.com/launchdarkly-labs/terraform-provider-launchdarkly-flag-evaluat
 go 1.17
 
 require (
+	github.com/hashicorp/terraform-plugin-framework v0.8.0
+	github.com/hashicorp/terraform-plugin-log v0.4.1
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.17.0
-	gopkg.in/launchdarkly/go-sdk-common.v2 v2.5.0
 	gopkg.in/launchdarkly/go-server-sdk.v5 v5.9.0
 )
 
@@ -26,7 +27,6 @@ require (
 	github.com/hashicorp/hcl/v2 v2.12.0 // indirect
 	github.com/hashicorp/logutils v1.0.0 // indirect
 	github.com/hashicorp/terraform-plugin-go v0.9.1 // indirect
-	github.com/hashicorp/terraform-plugin-log v0.4.1 // indirect
 	github.com/hashicorp/terraform-registry-address v0.0.0-20220510144317-d78f4a47ae27 // indirect
 	github.com/hashicorp/terraform-svchost v0.0.0-20200729002733-f050f53b9734 // indirect
 	github.com/hashicorp/yamux v0.0.0-20211028200310-0bc27b27de87 // indirect
@@ -59,6 +59,7 @@ require (
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/launchdarkly/go-jsonstream.v1 v1.0.1 // indirect
+	gopkg.in/launchdarkly/go-sdk-common.v2 v2.5.0 // indirect
 	gopkg.in/launchdarkly/go-sdk-events.v1 v1.1.1 // indirect
 	gopkg.in/launchdarkly/go-server-sdk-evaluation.v1 v1.5.0 // indirect
 )

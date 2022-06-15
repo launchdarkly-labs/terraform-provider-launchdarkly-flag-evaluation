@@ -9,7 +9,7 @@ bin="$tmp/bin"
 TF_CLI_CONFIG_FILE="$tmp/dev.tfrc"
 
 if [[ ${1:-} == "--rebuild" ]]; then
-  rm "$TF_CLI_CONFIG_FILE"
+  rm -f "$TF_CLI_CONFIG_FILE"
   go build -o "$bin/terraform-provider-feature-flag-eval" "$root"
   shift
 fi
