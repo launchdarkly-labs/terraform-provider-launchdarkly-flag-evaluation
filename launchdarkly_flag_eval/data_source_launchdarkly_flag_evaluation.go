@@ -169,12 +169,12 @@ func (d dataSourceFlagEvaluationBoolean) Read(ctx context.Context, req tfsdk.Rea
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Flag evaluation failed",
-			"Could not evaluate flag:\n\n"+err.Error()
-		) 
+			"Could not evaluate flag:\n\n"+err.Error(),
+		)
 		return
 	}
 
-	dataSourceState.Value = evaluation
+	dataSourceState.Value = evaluation.(types.Bool)
 
 	// set state
 	diags = resp.State.Set(ctx, &dataSourceState)
