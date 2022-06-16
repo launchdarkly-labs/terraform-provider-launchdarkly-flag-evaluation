@@ -12,7 +12,7 @@ import (
 type dataSourceFlagEvaluationFloatType struct{}
 
 func (d dataSourceFlagEvaluationFloatType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return getFlagEvaluationSchemaForType(types.Int64Type)
+	return getFlagEvaluationSchemaForType(types.Float64Type)
 }
 
 func (d dataSourceFlagEvaluationFloatType) NewDataSource(ctx context.Context, p tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
