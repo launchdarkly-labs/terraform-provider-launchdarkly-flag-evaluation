@@ -10,7 +10,7 @@ TF_CLI_CONFIG_FILE="$tmp/dev.tfrc"
 
 if [[ ${1:-} == "--rebuild" ]]; then
   rm -f "$TF_CLI_CONFIG_FILE"
-  go build -o "$bin/terraform-provider-feature-flag-eval" "$root"
+  go build -o "$bin/terraform-provider-ldflags" "$root"
   shift
 fi
 
@@ -22,7 +22,7 @@ if [[ ! -f $TF_CLI_CONFIG_FILE ]]; then
   cat <<EOF >"$TF_CLI_CONFIG_FILE"
 provider_installation {
   dev_overrides {
-    "launchdarkly/feature-flag-eval" = "${bin}"
+    "launchdarkly/ldflags" = "${bin}"
   }
   direct {}
 }

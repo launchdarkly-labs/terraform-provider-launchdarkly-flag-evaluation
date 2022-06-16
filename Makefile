@@ -1,7 +1,7 @@
 TEST?=$$(go list ./... | grep -v 'vendor')
 HOSTNAME=registry.terraform.io
 NAMESPACE=launchdarkly
-NAME=feature-flag-eval
+NAME=ldflags
 BINARY=terraform-provider-${NAME}
 VERSION=0.2
 OS_ARCH=$(shell go env GOOS)_$(shell go env GOARCH)

@@ -1,17 +1,17 @@
 terraform {
   required_providers {
-    feature-flag-eval = {
+    ldflags = {
       version = "0.2"
-      source  = "launchdarkly/feature-flag-eval"
+      source  = "launchdarkly/ldflags"
     }
   }
 }
 
-provider "feature-flag-eval" {
+provider "ldflags" {
   sdk_key = "sdk-2aaff62c-d031-47d1-9594-add194fce944"
 }
 
-data "feature-flag-eval_boolean" "mybool" {
+data "ldflags_evaluation_boolean" "mybool" {
   flag_key      = "boolean-flag"
   default_value = true
   context = {
@@ -21,14 +21,14 @@ data "feature-flag-eval_boolean" "mybool" {
       "test2" = 123
       "test3" = false
       "test4" = ["red", "orange", "yellow", true, 4] // tuple example
-      "test5" = tolist(["b", "w"]) // list example
+      "test5" = tolist(["b", "w"])                   // list example
       // note: cannot pass JSON objects as custom properties
       // https://docs.launchdarkly.com/home/users/attributes
     }
   }
 }
 
-data "feature-flag-eval_string" "mystring" {
+data "ldflags_evaluation_string" "mystring" {
   flag_key      = "string-flag"
   default_value = "def"
   context = {
@@ -38,7 +38,7 @@ data "feature-flag-eval_string" "mystring" {
       "test2" = 456
       "test3" = false
       "test4" = ["black", "white", true, 4] // tuple example
-      "test5" = tolist(["a", "d"]) // list example
+      "test5" = tolist(["a", "d"])          // list example
       "test6" = 100.50
       // note: cannot pass JSON objects as custom properties
       // https://docs.launchdarkly.com/home/users/attributes
@@ -46,17 +46,17 @@ data "feature-flag-eval_string" "mystring" {
   }
 }
 
-data "feature-flag-eval_int" "myint" {
+data "ldflags_evaluation_int" "myint" {
   flag_key      = "int-flag"
   default_value = 1
-  context       = {
-    key    = "mwong@launchdarkly.com"
+  context = {
+    key = "mwong@launchdarkly.com"
     custom = {
       "test"  = "bar"
       "test2" = 789
       "test3" = false
       "test4" = ["red", "green", true, 4] // tuple example
-      "test5" = tolist(["c", "f"]) // list example
+      "test5" = tolist(["c", "f"])        // list example
       "test6" = 2.2
       // note: cannot pass JSON objects as custom properties
       // https://docs.launchdarkly.com/home/users/attributes
@@ -64,17 +64,17 @@ data "feature-flag-eval_int" "myint" {
   }
 }
 
-data "feature-flag-eval_float" "myfloat" {
-  flag_key      = "float-flag"
+data "ldflags_evaluation_float" "myfloat" {
+  flag_key      = "float-64-flag"
   default_value = 1
-  context       = {
-    key    = "mwong@launchdarkly.com"
+  context = {
+    key = "mwong@launchdarkly.com"
     custom = {
       "test"  = "bar"
       "test2" = 789
       "test3" = false
       "test4" = ["red", "green", true, 4] // tuple example
-      "test5" = tolist(["c", "f"]) // list example
+      "test5" = tolist(["c", "f"])        // list example
       "test6" = 6.5
       // note: cannot pass JSON objects as custom properties
       // https://docs.launchdarkly.com/home/users/attributes
@@ -85,21 +85,21 @@ data "feature-flag-eval_float" "myfloat" {
 
 
 output "variation_value" {
-  value = data.feature-flag-eval_boolean.mybool
+  value = data.ldflags_evaluation_boolean.mybool.value
 }
 
 output "variation_value_string" {
-  value = data.feature-flag-eval_string.mystring
+  value = data.ldflags_evaluation_string.mystring.value
 }
 
 output "variation_value_int" {
-  value = data.feature-flag-eval_int.myint
+  value = data.ldflags_evaluation_int.myint.value
 }
 
 output "variation_value_float" {
-  value = data.feature-flag-eval_float.myfloat
+  value = data.ldflags_evaluation_float.myfloat.value
 }
 
 # locals {
-#   foo = file(data.feature-flag-eval_boolean.mybool.flag_key)
+#   foo = file(data.ldflags_boolean.mybool.flag_key)
 # }

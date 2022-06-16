@@ -46,3 +46,4 @@ website/node_modules
 .vscode/
 .terraform.lock.hcl
 /tmp
+/launchdarkly_flag_eval/example/out.log

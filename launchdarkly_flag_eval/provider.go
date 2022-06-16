@@ -17,7 +17,6 @@ const (
 	sdk_key              = "sdk_key"
 
 	flagKey      = "flag_key"
-	flagType     = "flag_type"
 	userContext  = "context"
 	variation    = "variation_type"
 	value        = "value"
@@ -54,28 +53,6 @@ type providerData struct {
 	SDKKey types.String `tfsdk:"sdk_key"`
 }
 
-// func Provider() *schema.Provider {
-// 	return &schema.Provider{
-// 		Schema: map[string]*schema.Schema{
-// sdk_key: {
-// 	Type:        schema.TypeString,
-// 	Required:    true,
-// 	ForceNew:    true,
-// 	DefaultFunc: schema.EnvDefaultFunc(LAUNCHDARKLY_SDK_KEY, nil),
-// 	Description: "The LaunchDarkly SDK key associated with the project and environment you would like to evaluate flags on",
-// },
-// 		},
-// 		DataSourcesMap: map[string]*schema.Resource{
-// "feature-flag-eval_boolean": dataSourceFlagEvaluation(schema.TypeBool),
-// "feature-flag-eval_string":  dataSourceFlagEvaluation(schema.TypeString),
-// "feature-flag-eval_int":     dataSourceFlagEvaluation(schema.TypeInt),
-// "feature-flag-eval_float":   dataSourceFlagEvaluation(schema.TypeFloat),
-// // "launchdarkly_flag_evaluation_json":    dataSourceFlagEvaluation(schema.TypeMap),
-// 		},
-// 		ConfigureContextFunc: configureSDK,
-// 	}
-// }
-
 func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderRequest, resp *tfsdk.ConfigureProviderResponse) {
 	var config providerData
 	diags := req.Config.Get(ctx, &config)
@@ -108,7 +85,7 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to create client",
-			"Unable to initialize LaunchDarkly client:\n\n"+err.Error(),
+			"Unable to initialize LaunchDarkly SDK client:\n\n"+err.Error(),
 		)
 		return
 	}
@@ -123,10 +100,10 @@ func (p *provider) GetResources(_ context.Context) (map[string]tfsdk.ResourceTyp
 
 func (p *provider) GetDataSources(_ context.Context) (map[string]tfsdk.DataSourceType, diag.Diagnostics) {
 	return map[string]tfsdk.DataSourceType{
-		"feature-flag-eval_boolean": dataSourceFlagEvaluationBooleanType{},
-		"feature-flag-eval_string":  dataSourceFlagEvaluationStringType{},
-		"feature-flag-eval_int":     dataSourceFlagEvaluationIntType{},
-		"feature-flag-eval_float":   dataSourceFlagEvaluationFloatType{},
-		// "feature-flag-eval_json":   dataSourceFlagEvaluationJSONType{},
+		"ldflags_evaluation_boolean": dataSourceFlagEvaluationBooleanType{},
+		"ldflags_evaluation_string":  dataSourceFlagEvaluationStringType{},
+		"ldflags_evaluation_int":     dataSourceFlagEvaluationIntType{},
+		"ldflags_evaluation_float":   dataSourceFlagEvaluationFloatType{},
+		// "ldflags_evaluation_json":   dataSourceFlagEvaluationJSONType{},
 	}, nil
 }
