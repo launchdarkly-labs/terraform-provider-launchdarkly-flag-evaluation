@@ -91,11 +91,11 @@ data "ldflags_evaluation_json" "myjson" {
   context = {
     key = "mmchheda@launchdarkly.com"
     custom = {
-      "test"  = "bar"
+      "test"  = "foo"
       "test2" = 789
       "test3" = false
-      "test4" = ["red", "green", true, 4] // tuple example
-      "test5" = tolist(["c", "f"])        // list example
+      "test4" = ["red", "orange", "black", true, 4] // tuple example
+      "test5" = tolist(["f", "w"])                   // list example
       "test6" = 6.5
       // note: cannot pass JSON objects as custom properties
       // https://docs.launchdarkly.com/home/users/attributes
