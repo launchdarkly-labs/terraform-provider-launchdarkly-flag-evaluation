@@ -82,6 +82,26 @@ data "ldflags_evaluation_float" "myfloat" {
   }
 }
 
+data "ldflags_evaluation_json" "myjson" {
+  flag_key      = "json-flag"
+  default_value = jsonencode({
+    "id": "moonshot",
+    "value": "tf-dont-eval"
+  })
+  context = {
+    key = "mmchheda@launchdarkly.com"
+    custom = {
+      "test"  = "bar"
+      "test2" = 789
+      "test3" = false
+      "test4" = ["red", "green", true, 4] // tuple example
+      "test5" = tolist(["c", "f"])        // list example
+      "test6" = 6.5
+      // note: cannot pass JSON objects as custom properties
+      // https://docs.launchdarkly.com/home/users/attributes
+    }
+  }
+}
 
 
 output "variation_value" {
@@ -99,6 +119,11 @@ output "variation_value_int" {
 output "variation_value_float" {
   value = data.ldflags_evaluation_float.myfloat.value
 }
+
+output "variation_value_json" {
+  value = data.ldflags_evaluation_json.myjson.value
+}
+
 
 # locals {
 #   foo = file(data.ldflags_boolean.mybool.flag_key)
