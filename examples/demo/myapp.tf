@@ -1,18 +1,18 @@
 locals {
-  app = "ldflags-app"
+  app    = "ldflags-app"
   labels = {
     app = "myapp"
   }
 }
 
-data "ldflags_evaluation_string" "nginx_version" {
-  flag_key      = "k8s-nginx-version"
-  default_value = "1.21.6"
-  context       = {
-    key    = local.app
-  }
-}
-
+#data "ldflags_evaluation_string" "nginx_version" {
+#  count         = 2
+#  flag_key      = "k8s-nginx-version"
+#  default_value = "1.20.0"
+#  context       = {
+#    key = "${local.app}-${count.index}"
+#  }
+#}
 
 #data "ldflags_evaluation_int" "k8s_replicas" {
 #  flag_key      = "k8s-replicas"
@@ -24,13 +24,15 @@ data "ldflags_evaluation_string" "nginx_version" {
 #}
 
 resource "kubernetes_deployment" "ldflags_app" {
+  count = 2
+
   metadata {
-    name   = local.app
+    name   = "${local.app}-${count.index}"
     labels = local.labels
   }
 
   spec {
-    replicas = 3
+    replicas = 1
 
     selector {
       match_labels = local.labels
@@ -43,8 +45,9 @@ resource "kubernetes_deployment" "ldflags_app" {
 
       spec {
         container {
-          image = "nginx:${data.ldflags_evaluation_string.nginx_version.value}"
-          name  = "example"
+#          image = "nginx:${data.ldflags_evaluation_string.nginx_version[count.index].value}"
+          image = "nginx:1.20.0"
+          name  = "nginx-app"
 
           resources {
             limits = {
