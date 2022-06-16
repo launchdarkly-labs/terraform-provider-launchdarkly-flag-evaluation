@@ -2,12 +2,10 @@ package launchdarkly_flag_eval
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 type dataSourceFlagEvaluationStringType struct {
@@ -35,17 +33,12 @@ func (d dataSourceFlagEvaluationString) Read(ctx context.Context, req tfsdk.Read
 		UserContext  LDUser       `tfsdk:"context"`
 	}
 
-	tflog.Info(ctx, "test\n")
-
 	diags := req.Config.Get(ctx, &dataSourceState)
 	if diags.HasError() {
 		resp.Diagnostics.Append(diags...)
 		return
 	}
-	tflog.Info(ctx, fmt.Sprintf("STATE %+v", dataSourceState))
-	tflog.Info(ctx, "--------")
 
-	tflog.Info(ctx, fmt.Sprintf("THIS IS THE USER CONTEXT BEFORE CONVERSION: %v", dataSourceState.UserContext))
 	userCtx, _ := convertUserContextToLDUserContext(ctx, dataSourceState.UserContext.Key.Value, dataSourceState.UserContext, resp.Diagnostics)
 	evaluation, err := d.p.client.StringVariation(dataSourceState.FlagKey.Value, userCtx, dataSourceState.DefaultValue.Value)
 	if err != nil {

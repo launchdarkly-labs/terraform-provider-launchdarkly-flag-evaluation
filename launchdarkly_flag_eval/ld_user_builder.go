@@ -214,21 +214,16 @@ func convertUserContextToLDUserContext(ctx context.Context, userKey string, user
 		builder.Custom(key, ldval)
 	}
 
-	lduser := builder.Build()
-	tflog.Info(ctx, fmt.Sprintf("%+v", lduser))
-
-	return lduser, false
+	return builder.Build(), false
 }
 
 func convert(ctx context.Context, key string, val tftypes.Value, diags diag.Diagnostics) (value ldvalue.Value, isUnknown bool) {
-	tflog.Info(ctx, fmt.Sprintf("THESE ARE SOME VALUES: %s = %v", key, val.IsFullyKnown()))
 	if !val.IsFullyKnown() {
 		return ldvalue.Value{}, true
 	}
 
 	switch {
 	case val.Type().Is(tftypes.Bool):
-		tflog.Info(ctx, "THIS IS A BOOL TYPE")
 		var v bool
 		err := val.As(&v)
 		if err != nil {
@@ -237,7 +232,6 @@ func convert(ctx context.Context, key string, val tftypes.Value, diags diag.Diag
 		}
 		return ldvalue.Bool(v), false
 	case val.Type().Is(tftypes.String):
-		tflog.Info(ctx, "THIS IS A STRING TYPE")
 		var v string
 		err := val.As(&v)
 		if err != nil {
@@ -246,19 +240,16 @@ func convert(ctx context.Context, key string, val tftypes.Value, diags diag.Diag
 		}
 		return ldvalue.String(v), false
 	case val.Type().Is(tftypes.Number):
-		tflog.Info(ctx, "THIS IS A NUMBER TYPE")
 		// test := val.ToTerraformValue()
 		var vf64 *big.Float
 		err := val.As(&vf64)
 		if err != nil {
-			tflog.Info(ctx, fmt.Sprintf("failed to convert %v to int", val))
+			tflog.Warn(ctx, fmt.Sprintf("failed to convert %v to int", val))
 			diags.AddAttributeError(nil, "Invalid type", "Can not convert value to big.float")
 			return ldvalue.Value{}, true
 		}
-		tflog.Info(ctx, fmt.Sprintf("big.float is: %v", vf64))
 
 		if vf64.IsInt() {
-			tflog.Info(ctx, "THIS IS AN INT WITHIN A NUMBER TYPE")
 			f, accuracy := vf64.Int64()
 			_ = accuracy
 
@@ -273,7 +264,6 @@ func convert(ctx context.Context, key string, val tftypes.Value, diags diag.Diag
 		return ldvalue.Float64(f), false
 
 	case val.Type().Is(tftypes.Tuple{}) || val.Type().Is(tftypes.List{}):
-		tflog.Info(ctx, "THIS IS A LIST/TUPLE")
 		var v []tftypes.Value
 		err := val.As(&v)
 
@@ -300,8 +290,8 @@ func convert(ctx context.Context, key string, val tftypes.Value, diags diag.Diag
 			}
 		}
 		ret := ldArr.Build()
-		tflog.Info(ctx, fmt.Sprintf("value of list : %s", ret.String()))
 		return ret, false
+	// cannot pass objects as custom attribute values
 	// case val.Type().Is(tftypes.Object{}): // tftypes.Object.Is(val.Type()):
 	// 	var obj map[string]tftypes.Value
 
@@ -324,8 +314,6 @@ func convert(ctx context.Context, key string, val tftypes.Value, diags diag.Diag
 	// 	return ldvalBuilder.Build(), false
 
 	default:
-		// todo object/array
-		tflog.Info(ctx, fmt.Sprintf("THIS IS A VALUE: %+v", val))
+		return ldvalue.Value{}, false
 	}
-	return ldvalue.Value{}, false
 }
