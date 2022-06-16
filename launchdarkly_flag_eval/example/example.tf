@@ -121,7 +121,7 @@ output "variation_value_float" {
 }
 
 output "variation_value_json" {
-  value = data.ldflags_evaluation_json.myjson.value
+  value = jsondecode(data.ldflags_evaluation_json.myjson.value)
 }
 
 
