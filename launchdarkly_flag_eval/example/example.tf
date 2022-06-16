@@ -14,8 +14,8 @@ provider "ldflags" {
 data "ldflags_evaluation_boolean" "mybool" {
   flag_key      = "boolean-flag"
   default_value = true
-  context = {
-    key = "hosh1@launchdarkly.com"
+  context       = {
+    key    = "hosh1@launchdarkly.com"
     custom = {
       "test"  = "foo"
       "test2" = 123
@@ -31,8 +31,8 @@ data "ldflags_evaluation_boolean" "mybool" {
 data "ldflags_evaluation_string" "mystring" {
   flag_key      = "string-flag"
   default_value = "def"
-  context = {
-    key = "mchheda@launchdarkly.com"
+  context       = {
+    key    = "mchheda@launchdarkly.com"
     custom = {
       "test"  = "bar"
       "test2" = 456
@@ -49,8 +49,8 @@ data "ldflags_evaluation_string" "mystring" {
 data "ldflags_evaluation_int" "myint" {
   flag_key      = "int-flag"
   default_value = 1
-  context = {
-    key = "mwong@launchdarkly.com"
+  context       = {
+    key    = "mwong@launchdarkly.com"
     custom = {
       "test"  = "bar"
       "test2" = 789
@@ -67,8 +67,8 @@ data "ldflags_evaluation_int" "myint" {
 data "ldflags_evaluation_float" "myfloat" {
   flag_key      = "float-64-flag"
   default_value = 1
-  context = {
-    key = "mwong@launchdarkly.com"
+  context       = {
+    key    = "mwong@launchdarkly.com"
     custom = {
       "test"  = "bar"
       "test2" = 789
@@ -82,6 +82,26 @@ data "ldflags_evaluation_float" "myfloat" {
   }
 }
 
+data "ldflags_evaluation_json" "myJSON" {
+  flag_key      = "json-flag"
+  default_value = {
+    id : "moonshot",
+    value : "tf-dont-eval"
+  }
+  context = {
+    key    = "mwong@launchdarkly.com"
+    custom = {
+      "test"  = "bar"
+      "test2" = 789
+      "test3" = false
+      "test4" = ["red", "green", true, 4] // tuple example
+      "test5" = tolist(["c", "f"])        // list example
+      "test6" = 6.5
+      // note: cannot pass JSON objects as custom properties
+      // https://docs.launchdarkly.com/home/users/attributes
+    }
+  }
+}
 
 
 output "variation_value" {
@@ -99,6 +119,11 @@ output "variation_value_int" {
 output "variation_value_float" {
   value = data.ldflags_evaluation_float.myfloat.value
 }
+
+output "variation_value_json" {
+  value = data.ldflags_evaluation_json.myJSON.value
+}
+
 
 # locals {
 #   foo = file(data.ldflags_boolean.mybool.flag_key)
