@@ -69,15 +69,21 @@ func (d dataSourceFlagEvaluationJSON) Read(ctx context.Context, req tfsdk.ReadDa
 			}
 			_ = tfVal.As(&temp)
 			ldMap.Set(key, ldvalue.Int(temp))
-			//case val.Type(ctx) == types.O:
-			//	var temp map[string]
-			//	tfVal, err := val.ToTerraformValue(ctx)
-			//	if err != nil {
-			//		tflog.Debug(ctx, err.Error())
-			//		return
-			//	}
-			//	_ = tfVal.As(&temp)
-			//	ldMap.Set(key, ldvalue.(temp))
+		//case val.Type(ctx) == types.Map:
+		//	var temp map[string]
+		//	tfVal, err := val.ToTerraformValue(ctx)
+		//	if err != nil {
+		//		tflog.Debug(ctx, err.Error())
+		//		return
+		//	}
+		//	_ = tfVal.As(&temp)
+		//	ldMap.Set(key, ldvalue.(temp))
+		default:
+			resp.Diagnostics.AddError(
+				"Flag evaluation failed",
+				"Unknown value in object type",
+			)
+			return
 		}
 	}
 
@@ -96,6 +102,7 @@ func (d dataSourceFlagEvaluationJSON) Read(ctx context.Context, req tfsdk.ReadDa
 		Unknown: false,
 		Null:    false,
 		Attrs:   evaluation,
+		AttrTypes:,
 	}
 
 	// set state
