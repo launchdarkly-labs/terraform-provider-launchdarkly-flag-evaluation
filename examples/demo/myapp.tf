@@ -5,23 +5,24 @@ locals {
   }
 }
 
-#data "ldflags_evaluation_string" "nginx_version" {
-#  count         = 2
-#  flag_key      = "k8s-nginx-version"
-#  default_value = "1.20.0"
-#  context       = {
-#    key = "${local.app}-${count.index}"
-#  }
-#}
+data "ldflags_evaluation_string" "nginx_version" {
+  count         = 2
+  flag_key      = "k8s-nginx-version"
+  default_value = "1.20.0"
+  context       = {
+    key = "${local.app}-${count.index}"
+  }
+}
 
-#data "ldflags_evaluation_int" "k8s_replicas" {
-#  flag_key      = "k8s-replicas"
-#  default_value = 2
-#
-#  context = {
-#    key = "terraform-user"
-#  }
-#}
+data "ldflags_evaluation_int" "k8s_replicas" {
+  count = 2
+  flag_key      = "k8s-replicas"
+  default_value = 1
+
+  context = {
+    key = "${local.app}-${count.index}"
+  }
+}
 
 resource "kubernetes_deployment" "ldflags_app" {
   count = 2
@@ -32,7 +33,7 @@ resource "kubernetes_deployment" "ldflags_app" {
   }
 
   spec {
-    replicas = 1
+    replicas = data.ldflags_evaluation_int.k8s_replicas[count.index].value
 
     selector {
       match_labels = local.labels
@@ -45,8 +46,7 @@ resource "kubernetes_deployment" "ldflags_app" {
 
       spec {
         container {
-#          image = "nginx:${data.ldflags_evaluation_string.nginx_version[count.index].value}"
-          image = "nginx:1.20.0"
+          image = "nginx:${data.ldflags_evaluation_string.nginx_version[count.index].value}"
           name  = "nginx-app"
 
           resources {
