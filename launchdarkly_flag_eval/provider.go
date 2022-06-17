@@ -37,7 +37,7 @@ func (p *provider) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics)
 		Attributes: map[string]tfsdk.Attribute{
 			sdk_key: {
 				Type:        types.StringType,
-				Required:    true,
+				Optional:    true,
 				Sensitive:   true,
 				Description: "The LaunchDarkly SDK key associated with the project and environment you would like to evaluate flags on",
 			},

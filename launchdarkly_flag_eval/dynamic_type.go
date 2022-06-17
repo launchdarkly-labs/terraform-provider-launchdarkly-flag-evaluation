@@ -43,6 +43,10 @@ func (d DynamicType) ApplyTerraform5AttributePathStep(step tftypes.AttributePath
 }
 
 func (d DynamicType) Validate(_ context.Context, val tftypes.Value, path *tftypes.AttributePath) diag.Diagnostics {
+	if val.IsNull() {
+		return nil
+	}
+
 	if !val.Type().Is(tftypes.Object{}) {
 		return diag.Diagnostics{
 			diag.NewAttributeErrorDiagnostic(path, "Invalid type", "Can only be an object"),
