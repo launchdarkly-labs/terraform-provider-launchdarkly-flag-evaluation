@@ -36,7 +36,8 @@ func (p *provider) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics)
 	return tfsdk.Schema{
 		Attributes: map[string]tfsdk.Attribute{
 			sdk_key: {
-				Type:        types.StringType,
+				Type: types.StringType,
+				// must be optional to allow setting via env variable
 				Optional:    true,
 				Sensitive:   true,
 				Description: "The LaunchDarkly SDK key associated with the project and environment you would like to evaluate flags on",
@@ -104,6 +105,6 @@ func (p *provider) GetDataSources(_ context.Context) (map[string]tfsdk.DataSourc
 		"ldflags_evaluation_string":  dataSourceFlagEvaluationStringType{},
 		"ldflags_evaluation_int":     dataSourceFlagEvaluationIntType{},
 		"ldflags_evaluation_float":   dataSourceFlagEvaluationFloatType{},
-		// "ldflags_evaluation_json":   dataSourceFlagEvaluationJSONType{},
+		"ldflags_evaluation_json":    dataSourceFlagEvaluationJSONType{},
 	}, nil
 }
