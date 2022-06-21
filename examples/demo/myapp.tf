@@ -30,6 +30,7 @@ resource "kubernetes_deployment" "ldflags_app" {
   metadata {
     name   = "${local.app}-${count.index}"
     labels = local.labels
+    namespace = kubernetes_namespace.ldflags_demo.id
   }
 
   spec {
@@ -83,6 +84,7 @@ resource "kubernetes_deployment" "ldflags_app" {
 resource "kubernetes_service" "ldflags_app" {
   metadata {
     name = "myapp"
+    namespace = kubernetes_namespace.ldflags_demo.id
   }
   spec {
     selector = local.labels
