@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "ldflags" {
-  sdk_key = "sdk-2aaff62c-d031-47d1-9594-add194fce944"
+  sdk_key = "{your_sdk_key}"
 }
 
 data "ldflags_evaluation_boolean" "mybool" {

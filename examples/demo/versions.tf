@@ -16,4 +16,7 @@ provider "kubernetes" {
   config_context = "minikube"
 }
 
-provider "ldflags" {}
+provider "ldflags" {
+  host = ""
+  sdk_key = ""
+}
