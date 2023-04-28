@@ -15,12 +15,12 @@ import (
 const (
 	LAUNCHDARKLY_SDK_KEY = "LAUNCHDARKLY_SDK_KEY"
 	sdk_key              = "sdk_key"
-
-	flagKey      = "flag_key"
-	userContext  = "context"
-	variation    = "variation_type"
-	value        = "value"
-	defaultValue = "default_value"
+	host                 = "host"
+	flagKey              = "flag_key"
+	userContext          = "context"
+	variation            = "variation_type"
+	value                = "value"
+	defaultValue         = "default_value"
 )
 
 func New() tfsdk.Provider {
@@ -42,8 +42,14 @@ func (p *provider) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics)
 				Sensitive:   true,
 				Description: "The LaunchDarkly SDK key associated with the project and environment you would like to evaluate flags on",
 			},
+			host: {
+				Type: types.StringType,
+				// must be optional to allow setting via env variable
+				Optional:    true,
+				Sensitive:   true,
+				Description: "The host to use for performing flag evaluations.",
+			},
 			// TODO add attributes:
-			// host
 			// polling/streaming
 			// other things?
 		},
@@ -52,6 +58,7 @@ func (p *provider) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics)
 
 type providerData struct {
 	SDKKey types.String `tfsdk:"sdk_key"`
+	Host   types.String `tfsdk:"host"`
 }
 
 func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderRequest, resp *tfsdk.ConfigureProviderResponse) {
@@ -82,6 +89,11 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 	ldConfig.Events = ldcomponents.SendEvents()
 	// default poll interval is 30 seconds
 	ldConfig.DataSource = ldcomponents.PollingDataSource()
+
+	if config.Host.Value != "" {
+		ldConfig.ServiceEndpoints.Polling = config.Host.Value
+	}
+
 	c, err := ld.MakeCustomClient(sdkKey, ldConfig, 5*time.Second)
 	if err != nil {
 		resp.Diagnostics.AddError(
