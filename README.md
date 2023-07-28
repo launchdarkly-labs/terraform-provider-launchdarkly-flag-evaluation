@@ -1,3 +1,5 @@
+> This project is not officially supported by LaunchDarkly.
+
 # terraform-provider-launchdarkly-flag-evaluation
 
 This repo contains an `ldflags` provider that wraps the [LaunchDarkly Go SDK](https://docs.launchdarkly.com/sdk/server-side/go). The provider directory `ldflags/` contains five flag evaluation data sources:
